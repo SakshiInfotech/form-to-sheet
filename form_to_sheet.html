@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Data Entry</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+
+  <h2>Data Entry Form</h2>
+  <form id="dataForm" class="mb-4">
+    <div class="row g-3">
+      <div class="col-md-4"><input name="vendorName" class="form-control" placeholder="Vendor Name" required></div>
+      <div class="col-md-4"><input name="date" type="date" class="form-control" required></div>
+      <div class="col-md-4"><input name="verificationType" class="form-control" placeholder="Type of Verification" required></div>
+      <div class="col-md-4"><input name="clientName" class="form-control" placeholder="Client Name" required></div>
+      <div class="col-md-4"><input name="resumeId" class="form-control" placeholder="Resume ID - Client ID" required></div>
+      <div class="col-md-4"><input name="candidateName" class="form-control" placeholder="Candidate Name" required></div>
+      <div class="col-md-6"><input name="address" class="form-control" placeholder="Address"></div>
+      <div class="col-md-2"><input name="pincode" class="form-control" placeholder="Pincode"></div>
+      <div class="col-md-4"><input name="city" class="form-control" placeholder="City"></div>
+      <div class="col-md-6"><input name="contact1" class="form-control" placeholder="Contact Number 1"></div>
+      <div class="col-md-6"><input name="contact2" class="form-control" placeholder="Contact Number 2"></div>
+      <div class="col-md-6"><input name="processOwner" class="form-control" placeholder="Process Owner"></div>
+    </div>
+    <input type="hidden" name="userId" value="ravichandra7thjul@gmail.com">
+    <button class="btn btn-primary mt-3">Submit</button>
+  </form>
+
+  <h3>My Submitted Records</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered" id="dataTable"></table>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwwFDWW-AVagdxadCv7KO55VX-igQgTm5YUmm8YABVASM15Z-MtS32kiCnb7OwL7uSR/exec";
+    const userEmail = "ravichandra7thjul@gmail.com";
+
+    document.getElementById("dataForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      formData.set("userId", userEmail);
+
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(formData.entries())),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("Data submitted successfully!");
+        this.reset();
+        loadData();
+      });
+    });
+
+    function loadData() {
+      fetch(scriptURL + "?action=getData")
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("dataTable");
+          table.innerHTML = "";
+
+          const headers = data[0];
+          const headerRow = document.createElement("tr");
+          for (let i = 0; i <= 11; i++) {
+            const th = document.createElement("th");
+            th.innerText = headers[i];
+            headerRow.appendChild(th);
+          }
+          table.appendChild(headerRow);
+
+          data.slice(1).forEach(row => {
+            if (row[12] === userEmail) {
+              const tr = document.createElement("tr");
+              for (let i = 0; i <= 11; i++) {
+                const td = document.createElement("td");
+                td.innerText = row[i];
+                tr.appendChild(td);
+              }
+              table.appendChild(tr);
+            }
+          });
+        });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
